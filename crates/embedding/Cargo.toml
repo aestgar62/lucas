@@ -1,0 +1,18 @@
+[package]
+name = "embedding"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+async-trait = { workspace = true }
+fastembed = { version = "5.17.2", optional = true }
+serde = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "macros", "sync", "time"] }
+tokio-test = { workspace = true }
+
+[features]
+default = ["fastembed"]

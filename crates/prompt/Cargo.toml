@@ -1,0 +1,9 @@
+[package]
+name = "prompt"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+reqwest = { version = "0.13.4", features = ["json"] }

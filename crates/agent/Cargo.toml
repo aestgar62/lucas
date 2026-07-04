@@ -1,0 +1,10 @@
+[package]
+name = "agent"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+markdown-frontmatter = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }
