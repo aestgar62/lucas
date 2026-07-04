@@ -1,8 +1,9 @@
 //
 use crate::{
     Provider, Config, CompletionRequest, CompletionResponse, StopReason, Error,
-    message::{Block, Message, Role},
 };
+
+use lucas_core::{Message, Block, Role};
 
 use tools::ToolDefinition;
 
@@ -55,7 +56,7 @@ impl Provider for AnthropicApi {
             return Err(Error::HttpResponse(status, text));
         }
         let resp_body: AnthropicResponse = response.json().await?;
-        let content = resp_body.content.into_iter().map(|block| Block::from(block)).collect();
+        let content = resp_body.content.into_iter().map(|block| Block::from(&block)).collect();
         let stop_reason = match resp_body.stop_reason.as_deref() {
             Some("tool_use") => StopReason::ToolUse,
             Some("end_turn") => StopReason::EndTurn,
@@ -84,19 +85,38 @@ enum AnthropicBlock {
 impl From<&Block> for AnthropicBlock {
     fn from(block: &Block) -> Self {
         match block {
-            Block::Text { text } => AnthropicBlock::Text { text: text.clone() },
-            Block::ToolCall { id, name, input } => AnthropicBlock::ToolUse { id: id.clone(), name: name.clone(), input: input.clone() },
-            Block::ToolResult { tool_use_id, content } => AnthropicBlock::ToolResult { tool_use_id: tool_use_id.clone(), content: content.clone() },
+            Block::Text { text } => 
+                AnthropicBlock::Text { text: text.clone() },
+            Block::ToolCall { id, name, input } => 
+                AnthropicBlock::ToolUse { 
+                    id: id.clone(), 
+                    name: name.clone(), 
+                    input: input.clone()
+                },
+            Block::ToolResult { tool_use_id, content } => 
+                AnthropicBlock::ToolResult { 
+                    tool_use_id: tool_use_id.clone(), 
+                    content: content.clone() 
+                },
         }
     }
 }
 
-impl From<AnthropicBlock> for Block {
-    fn from(block: AnthropicBlock) -> Self {
+impl From<&AnthropicBlock> for Block {
+    fn from(block: &AnthropicBlock) -> Self {
         match block {
-            AnthropicBlock::Text { text } => Block::Text { text },
-            AnthropicBlock::ToolUse { id, name, input } => Block::ToolCall { id, name, input },
-            AnthropicBlock::ToolResult { tool_use_id, content } => Block::ToolResult { tool_use_id, content },
+            AnthropicBlock::Text { text } => Block::Text { text: text.clone() },
+            AnthropicBlock::ToolUse { id, name, input } => 
+                Block::ToolCall { 
+                    id: id.clone(), 
+                    name: name.clone(), 
+                    input: input.clone() 
+                },
+            AnthropicBlock::ToolResult { tool_use_id, content } => 
+                Block::ToolResult { 
+                    tool_use_id: tool_use_id.clone(), 
+                    content: content.clone() 
+                },
         }
     }
 }
@@ -110,11 +130,13 @@ struct AnthropichMessage {
 impl From<&Message> for AnthropichMessage {
     fn from(msg: &Message) -> Self {
         Self {
-            role: match msg.role {
+            role: match msg.role() {
                 Role::User => "user",
                 Role::Assistant => "assistant",
+                Role::System => "system",
+                Role::Tool => "tool",
             },
-            content: msg.content.iter().map(|block| block.into()).collect(),
+            content: msg.content().iter().map(|block| block.into()).collect(),
         }
     }
 }

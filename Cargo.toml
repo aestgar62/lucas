@@ -3,6 +3,7 @@
 resolver = "3"
 members = [
     "crates/agent",
+    "crates/lucas-core",
     "crates/embedding",
     "crates/prompt",
     "crates/provider",
@@ -17,6 +18,7 @@ rust-version = "1.96.0"
 [workspace.dependencies]
 anyhow = "1.0.103"
 async-trait = "0.1.89"
+lucas-core = { path = "crates/lucas-core" } 
 markdown-frontmatter = "0.5.1"
 reqwest = { version = "0.13", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }

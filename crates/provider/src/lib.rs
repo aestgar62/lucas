@@ -6,7 +6,7 @@ mod providers;
 
 pub use error::Error;
 
-use crate::message::{Block, Message, Role};
+use lucas_core::{Message, Block, Role};
 use tools::ToolDefinition;
 use serde::Deserialize;
 use async_trait::async_trait;
@@ -104,7 +104,7 @@ pub enum ProviderType {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::message::{Message, Block};
+    
 
 
     pub struct MockProvider;
@@ -126,10 +126,9 @@ mod tests {
     #[tokio::test]
     async fn test_mock_provider() {
         let api_provider = MockProvider;
-        let message = Message {
-            role: Role::User,
-            content: vec![Block::Text { text: "Hello".to_string() }],
-        };
+        let mut message = Message::new(Role::User);
+        message.add_text("Text block");
+        
         let request = CompletionRequest {
             system: "Test system prompt".to_string(),
             tools: vec![],
